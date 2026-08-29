@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rounds — Treinamento para o Título de Especialista em Clínica Médica</title>
+<style>
+:root{
+  --ink:#122024;
+  --paper:#f4f0e6;
+  --panel:#ffffff;
+  --line:#d8d0bd;
+  --teal:#0f5257;
+  --teal-deep:#0a3a3d;
+  --amber:#c17a2e;
+  --amber-soft:#f0dcbb;
+  --red:#a3402f;
+  --green:#3c6e47;
+  --mono: 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+  min-height:100vh;
+}
+.app{display:flex;min-height:100vh;}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{
+  width:280px;
+  flex-shrink:0;
+  background:var(--teal-deep);
+  color:var(--paper);
+  padding:28px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.brand{
+  font-family: Georgia, serif;
+  font-size:22px;
+  letter-spacing:0.5px;
+  border-bottom:1px solid rgba(244,240,230,0.25);
+  padding-bottom:14px;
+}
+.brand small{
+  display:block;
+  font-family: var(--mono);
+  font-size:10px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--amber-soft);
+  margin-top:6px;
+}
+.spec-list{
+  list-style:none;
+  margin:0;padding:0;
+  overflow-y:auto;
+  flex:1;
+}
+.spec-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  padding:9px 10px;
+  border-radius:4px;
+  cursor:pointer;
+  font-size:14px;
+  margin-bottom:2px;
+  transition:background .15s ease;
+  color:rgba(244,240,230,0.85);
+}
+.spec-item:hover{background:rgba(244,240,230,0.08);}
+.spec-item.active{
+  background:var(--amber);
+  color:var(--teal-deep);
+  font-weight:bold;
+}
+.spec-count{
+  font-family:var(--mono);
+  font-size:11px;
+  opacity:0.75;
+}
+.spec-item.active .spec-count{opacity:1;}
+.sidebar-footer{
+  font-family:var(--mono);
+  font-size:10.5px;
+  color:rgba(244,240,230,0.5);
+  border-top:1px solid rgba(244,240,230,0.2);
+  padding-top:12px;
+  line-height:1.6;
+}
+
+/* ---------- MAIN ---------- */
+.main{
+  flex:1;
+  padding:36px 48px;
+  max-width:900px;
+  margin:0 auto;
+  width:100%;
+}
+.top-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:6px;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--amber);
+}
+h1.spec-title{
+  font-size:34px;
+  margin:2px 0 4px 0;
+  color:var(--teal-deep);
+}
+.spec-sub{
+  color:#5a5347;
+  font-size:14px;
+  margin-bottom:22px;
+}
+
+.stats-row{
+  display:flex;
+  gap:14px;
+  margin-bottom:26px;
+  flex-wrap:wrap;
+}
+.stat-pill{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:6px 14px;
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--teal-deep);
+}
+.stat-pill b{color:var(--amber);}
+
+.topic-filter{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:24px;
+}
+.topic-chip{
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:#5a5347;
+  font-size:12px;
+  padding:5px 11px;
+  border-radius:20px;
+  cursor:pointer;
+  font-family:var(--mono);
+}
+.topic-chip.active{
+  background:var(--teal);
+  border-color:var(--teal);
+  color:#fff;
+}
+
+/* ---------- CARD ---------- */
+.card-stage{
+  perspective:1600px;
+  margin-bottom:24px;
+}
+.card{
+  position:relative;
+  width:100%;
+  min-height:280px;
+  border-radius:10px;
+  cursor:pointer;
+  transform-style:preserve-3d;
+  transition:transform .5s cubic-bezier(.4,.2,.2,1);
+}
+.card.flipped{transform:rotateY(180deg);}
+.face{
+  position:absolute;
+  inset:0;
+  backface-visibility:hidden;
+  border-radius:10px;
+  padding:34px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  box-shadow:0 1px 3px rgba(18,32,36,0.08), 0 8px 24px rgba(18,32,36,0.06);
+  border:1px solid var(--line);
+}
+.face-front{
+  background:var(--panel);
+}
+.face-back{
+  background:var(--teal-deep);
+  color:var(--paper);
+  transform:rotateY(180deg);
+}
+.face-label{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.face-front .face-label{color:var(--amber);}
+.face-back .face-label{color:var(--amber-soft);}
+.face-text{
+  font-size:20px;
+  line-height:1.5;
+}
+.face-back .face-text{font-size:17px;}
+.face-topic{
+  position:absolute;
+  top:16px;
+  right:20px;
+  font-family:var(--mono);
+  font-size:10px;
+  color:#a89f8c;
+}
+.face-back .face-topic{color:rgba(244,240,230,0.55);}
+.flip-hint{
+  position:absolute;
+  bottom:14px;
+  right:20px;
+  font-family:var(--mono);
+  font-size:10px;
+  color:#a89f8c;
+}
+
+/* ---------- CONTROLS ---------- */
+.controls{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.nav-btns{display:flex;gap:8px;}
+button{
+  font-family: Georgia, serif;
+  font-size:14px;
+  border:1px solid var(--teal-deep);
+  background:var(--panel);
+  color:var(--teal-deep);
+  padding:10px 18px;
+  border-radius:6px;
+  cursor:pointer;
+}
+button:hover{background:var(--amber-soft);}
+button.primary{
+  background:var(--teal-deep);
+  color:var(--paper);
+}
+button.primary:hover{background:var(--teal);}
+button:focus-visible{outline:2px solid var(--amber); outline-offset:2px;}
+.grade-btns{display:flex;gap:8px;}
+.grade-btns button.review{border-color:var(--red);color:var(--red);}
+.grade-btns button.review:hover{background:#f5e2dd;}
+.grade-btns button.known{border-color:var(--green);color:var(--green);}
+.grade-btns button.known:hover{background:#e1ecdf;}
+
+.empty-state{
+  text-align:center;
+  padding:60px 20px;
+  color:#7a7364;
+}
+.empty-state h2{color:var(--teal-deep);font-weight:normal;}
+
+@media (max-width:820px){
+  .app{flex-direction:column;}
+  .sidebar{width:100%;max-height:220px;}
+  .main{padding:24px 18px;}
+  h1.spec-title{font-size:26px;}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">Rounds<small>Treino — Título de Especialista em Clínica Médica · SBCM/AMB 2026</small></div>
+    <ul class="spec-list" id="specList"></ul>
+    <div class="sidebar-footer">Conteúdo alinhado à matriz programática do Edital nº 2473. Uso complementar ao estudo — não substitui a bibliografia oficial.</div>
+  </aside>
+
+  <main class="main">
+    <div class="top-row">
+      <div>
+        <div class="eyebrow" id="eyebrow">SUBESPECIALIDADE</div>
+        <h1 class="spec-title" id="specTitle">—</h1>
+      </div>
+    </div>
+    <div class="spec-sub" id="specSub"></div>
+
+    <div class="stats-row">
+      <div class="stat-pill">Cartão <b id="cardPos">0</b> / <span id="cardTotal">0</span></div>
+      <div class="stat-pill">Dominados <b id="knownCount" style="color:var(--green)">0</b></div>
+      <div class="stat-pill">Revisar <b id="reviewCount" style="color:var(--red)">0</b></div>
+    </div>
+
+    <div class="topic-filter" id="topicFilter"></div>
+
+    <div id="studyArea">
+      <div class="card-stage">
+        <div class="card" id="card">
+          <div class="face face-front">
+            <div class="face-topic" id="topicTagFront"></div>
+            <div class="face-label">Pergunta</div>
+            <div class="face-text" id="frontText"></div>
+            <div class="flip-hint">clique para virar ↻</div>
+          </div>
+          <div class="face face-back">
+            <div class="face-topic" id="topicTagBack"></div>
+            <div class="face-label">Resposta</div>
+            <div class="face-text" id="backText"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="nav-btns">
+          <button id="prevBtn">← Anterior</button>
+          <button id="shuffleBtn">Embaralhar</button>
+          <button id="nextBtn" class="primary">Próximo →</button>
+        </div>
+        <div class="grade-btns">
+          <button class="review" id="reviewBtn">Marcar: Revisar</button>
+          <button class="known" id="knownBtn">Marcar: Sei bem</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display:none;">
+      <h2>Nenhum cartão neste filtro</h2>
+      <p>Escolha outro tema ou volte para "Todos os temas".</p>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ======================= DADOS ======================= */
+// Cada especialidade: { label, topics: [...], cards: [{q,a,topic}] }
+const DATA = {
+cardiologia:{label:"Cardiologia", cards:[
+["Quais são os ritmos chocáveis em PCR?","Fibrilação Ventricular (FV) e Taquicardia Ventricular sem pulso (TVSP).","PCR"],
+["Qual a dose de epinefrina no ACLS e a cada quantos minutos?","1 mg IV/IO, repetida a cada 3–5 minutos.","PCR"],
+["Qual a relação compressão:ventilação com via aérea não avançada (1 socorrista)?","30:2.","PCR"],
+["Qual antiarrítmico é indicado em FV/TVSP refratária, dose inicial?","Amiodarona 300 mg IV em bolus, podendo repetir 150 mg.","PCR"],
+["Frequência e profundidade das compressões torácicas em adultos?","100–120/min, profundidade de 5–6 cm, com retorno total do tórax.","PCR"],
+["Quais os 3 subtipos de Síndrome Coronariana Aguda?","Angina instável, IAMSSST e IAMCSST.","SCA"],
+["Tempo-alvo porta-balão no IAMCSST?","Até 90 minutos (ou 120 min se necessária transferência).","SCA"],
+["Biomarcador mais sensível/específico para necrose miocárdica?","Troponina de alta sensibilidade.","SCA"],
+["Quando indicar trombolítico no IAMCSST?","Quando ICP primária não é possível em até 120 min do 1º contato médico, dentro de 12h de sintomas.","SCA"],
+["Terapia dupla antiplaquetária + anticoagulação são a base de qual síndrome?","Síndrome coronariana aguda.","SCA"],
+["Exame inicial para estratificar risco em angina estável, prob. intermediária?","Teste ergométrico, cintilografia, ecoestresse ou angio-TC de coronárias.","SCC"],
+["Tríade farmacológica de base na síndrome coronariana crônica?","AAS, estatina de alta potência e terapia anti-isquêmica (BB ou BCC).","SCC"],
+["Quando revascularizar na SCC além do alívio sintomático?","Lesão de tronco, triarterial com disfunção de VE, ou isquemia >10% do miocárdio.","SCC"],
+["Classe a evitar na angina vasoespástica (Prinzmetal)?","Betabloqueadores — preferir bloqueador de canal de cálcio.","SCC"],
+["Escore para risco anatômico em doença coronariana multiarterial?","Escore SYNTAX.","SCC"],
+["Classe de QT associada a cardiotoxicidade cumulativa dose-dependente?","Antraciclinas (ex: doxorrubicina).","Cardio-oncologia"],
+["Exame padrão para monitorização seriada em cardio-oncologia?","Ecocardiograma com strain longitudinal global.","Cardio-oncologia"],
+["Terapia-alvo associada a disfunção ventricular reversível (tipo II)?","Trastuzumabe.","Cardio-oncologia"],
+["Cardioproteção antes de altas doses de antraciclina?","Dexrazoxano.","Cardio-oncologia"],
+["Fármacos usados no manejo da cardiotoxicidade estabelecida?","IECA/BRA e betabloqueador (carvedilol).","Cardio-oncologia"],
+["Quais os 3 fenótipos principais de cardiomiopatia?","Dilatada, hipertrófica e restritiva.","Cardiomiopatias"],
+["Causa genética mais comum de morte súbita em atletas jovens?","Cardiomiopatia hipertrófica.","Cardiomiopatias"],
+["Achado ecocardiográfico da CMH obstrutiva?","Hipertrofia septal assimétrica + SAM + obstrução de via de saída de VE.","Cardiomiopatias"],
+["Principais causas de cardiomiopatia restritiva?","Amiloidose, sarcoidose, hemocromatose, fibrose endomiocárdica.","Cardiomiopatias"],
+["Classe a evitar na CMH obstrutiva por piorar gradiente?","Vasodilatadores e inotrópicos positivos.","Cardiomiopatias"],
+["Agente etiológico da Doença de Chagas?","Trypanosoma cruzi.","Chagas"],
+["Manifestação cardíaca clássica na fase crônica de Chagas?","Cardiomiopatia dilatada com aneurisma de ponta e distúrbios de condução.","Chagas"],
+["Confirmação diagnóstica sorológica na fase crônica?","Dois testes sorológicos de metodologias distintas positivos.","Chagas"],
+["Tríade ECG clássica sugestiva de Chagas?","BRD + BDAS + extrassístoles ventriculares.","Chagas"],
+["Complicação digestiva típica de Chagas crônico?","Megaesôfago e megacólon.","Chagas"],
+["Escore de risco tromboembólico na FA não valvar?","CHA2DS2-VASc.","FA"],
+["Escore de risco de sangramento em anticoagulados?","HAS-BLED.","FA"],
+["Duas estratégias terapêuticas gerais na FA?","Controle de ritmo e controle de frequência.","FA"],
+["Antes de cardioversão eletiva em FA >48h?","Anticoagulação por 3 semanas antes (ou ETE prévio) + 4 semanas depois.","FA"],
+["Fármacos para controle de frequência na FA?","Betabloqueador, BCC não di-hidropiridínico, digitálico.","FA"],
+["Valor de PA que define hipertensão em consultório?","≥140/90 mmHg.","HAS"],
+["Classes de 1ª linha no tratamento farmacológico da HAS?","Diuréticos tiazídicos, IECA/BRA e BCC.","HAS"],
+["O que caracteriza emergência hipertensiva (vs urgência)?","Lesão aguda de órgão-alvo, exigindo redução imediata IV.","HAS"],
+["Meta de redução de PA na 1ª hora de emergência hipertensiva?","Reduzir PA média em até 25%.","HAS"],
+["Principais causas de HAS secundária a investigar?","Hiperaldosteronismo 1º, doença renovascular, AOS, doença renal, feocromocitoma.","HAS"],
+["Classificação da IC quanto à FEVE?","Reduzida (≤40%), levemente reduzida (41-49%), preservada (≥50%).","IC"],
+["Os 4 pilares farmacológicos da ICFEr?","IECA/BRA/INRA, betabloqueador, antagonista mineralocorticoide, iSGLT2.","IC"],
+["Biomarcador diagnóstico/prognóstico na IC?","BNP ou NT-proBNP.","IC"],
+["Indicação de terapia de ressincronização cardíaca?","FEVE ≤35%, BRE com QRS ≥150ms, classe funcional II-IV, terapia otimizada.","IC"],
+["Classes com cautela na ICFEr por efeito inotrópico negativo?","BCC não di-hidropiridínicos e AINEs.","IC"],
+["Meta de LDL-c em risco cardiovascular muito alto?","<50 mg/dL.","Dislipidemia"],
+["1ª linha farmacológica para reduzir LDL-c?","Estatina de alta potência.","Dislipidemia"],
+["Quando associar ezetimiba/iPCSK9?","Quando meta de LDL-c não é atingida com estatina em dose máxima.","Dislipidemia"],
+["Classe indicada em hipertrigliceridemia grave (>500) com risco de pancreatite?","Fibratos.","Dislipidemia"],
+["Efeito adverso muscular das estatinas a monitorar?","Miopatia/mialgia; raramente rabdomiólise.","Dislipidemia"],
+["Escores de risco CV usados em prevenção primária?","Framingham, ASCVD Risk Score, risco global.","Prevenção Aterosclerose"],
+["Utilidade do escore de cálcio coronariano?","Reclassificar risco em pacientes de risco intermediário.","Prevenção Aterosclerose"],
+["Intervenção não farmacológica de maior impacto na prevenção CV?","Cessação do tabagismo.","Prevenção Aterosclerose"],
+["AAS em prevenção primária: quando indicar?","Seletivamente em alto risco CV sem alto risco de sangramento.","Prevenção Aterosclerose"],
+["4 pilares do estilo de vida na prevenção CV?","Parar de fumar, atividade física, dieta cardioprotetora, controle de peso.","Prevenção Aterosclerose"],
+["A partir de que idade rastrear risco CV em assintomáticos?","A partir de 40 anos (ou antes, se fatores de risco).","Check-up"],
+["ECG de repouso de rotina é indicado em check-up de baixo risco?","Não — sem evidência de benefício em rastreio populacional.","Check-up"],
+["Quando iniciar rastreio lipídico sem fatores de risco?","A partir dos 20 anos, repetindo a cada 4-6 anos.","Check-up"],
+["Teste ergométrico é rotina em check-up assintomático?","Não, salvo situações específicas.","Check-up"],
+["Escore de risco cardíaco perioperatório em cirurgia não cardíaca?","Índice de Risco Cardíaco Revisado (RCRI/Lee).","Perioperatório"],
+["Condições cardíacas ativas que exigem tratamento antes de cirurgia eletiva?","SCA instável, IC descompensada, arritmia significativa, valvopatia grave sintomática.","Perioperatório"],
+["Capacidade funcional (METs) que dispensa investigação adicional?","≥4 METs sem sintomas.","Perioperatório"],
+["Betabloqueador deve ser iniciado no pré-operatório imediato?","Não — início abrupto aumenta risco de AVC/mortalidade.","Perioperatório"],
+["Quando suspender DOACs antes de cirurgia de risco padrão?","Geralmente 24–48h antes, individualizado.","Perioperatório"],
+["Classes de antidiabéticos com redução comprovada de desfecho CV?","iSGLT2 e agonistas de GLP-1.","DM/CV"],
+["Meta geral de HbA1c na maioria dos adultos com DM2?","<7%, individualizada.","DM/CV"],
+["Por que iSGLT2 beneficiam a IC independente do diabetes?","Mecanismos natriuréticos/hemodinâmicos independentes do controle glicêmico.","DM/CV"],
+["Meta de LDL-c em diabéticos de alto risco CV?","<70 mg/dL (ou <50 se risco muito alto).","DM/CV"],
+["Exame de rastreio de DAP em diabéticos?","Índice tornozelo-braquial (ITB).","DM/CV"],
+["Causa mais comum de miocardite?","Viral (enterovírus, Coxsackie B, adenovírus, associação rara com COVID/vacina mRNA).","Miocardite/Pericardite"],
+["Padrão-ouro para diagnóstico definitivo de miocardite?","Biópsia endomiocárdica (critérios de Dallas); RM cardíaca não invasiva (Lake Louise).","Miocardite/Pericardite"],
+["Tríade ECG da pericardite aguda?","Supra difuso de ST côncavo + infra de PR.","Miocardite/Pericardite"],
+["1ª linha no tratamento da pericardite aguda idiopática/viral?","AINE + colchicina.","Miocardite/Pericardite"],
+["Complicação grave a investigar sempre na pericardite?","Tamponamento cardíaco (tríade de Beck).","Miocardite/Pericardite"],
+["Valvopatia mais comum em idosos em países desenvolvidos?","Estenose aórtica calcificada degenerativa.","Valvopatias"],
+["Tríade clássica da estenose aórtica grave sintomática?","Angina, síncope e dispneia.","Valvopatias"],
+["Tratamento definitivo da estenose aórtica grave sintomática?","Troca valvar (TVA cirúrgica ou TAVI).","Valvopatias"],
+["Principal etiologia de valvopatia mitral no Brasil?","Doença reumática.","Valvopatias"],
+["Achado ausculatório da insuficiência mitral?","Sopro holossistólico em foco mitral, irradiado para axila.","Valvopatias"]
+]},
+
+dermatologia:{label:"Dermatologia", cards:[
+["Quais vasos são acometidos na vasculite de pequenos vasos vs. grandes vasos?","Pequenos vasos: capilares/vênulas (ex: púrpura palpável); grandes vasos: aorta e ramos (ex: arterite de Takayasu, células gigantes).","Vasculite"],
+["Achado cutâneo clássico de vasculite leucocitoclástica?","Púrpura palpável, geralmente em membros inferiores.","Vasculite"],
+["Qual anticorpo é mais específico para LES e qual mais sensível?","Anti-Sm é mais específico; FAN é mais sensível (triagem).","Anticorpos LES"],
+["Anticorpo associado a nefrite lúpica e atividade de doença?","Anti-dsDNA.","Anticorpos LES"],
+["Como diferenciar úlcera venosa de arterial pela localização e características?","Venosa: maleolar medial, bordas irregulares, dor leve, edema associado. Arterial: extremidades distais, bordas bem demarcadas, dor intensa, pulsos diminuídos.","Úlceras MMII"],
+["Qual exame avalia perfusão arterial antes de compressão em úlcera de perna?","Índice tornozelo-braquial (ITB).","Úlceras MMII"],
+["Qual o tratamento de base da úlcera venosa?","Terapia compressiva (se ITB adequado) + cuidados locais da ferida.","Úlceras MMII"],
+["Manifestação cutânea que sugere sepse meningocócica?","Petéquias/púrpura de progressão rápida (não desaparecem à digitopressão).","Manifestações em graves"],
+["Necrólise epidérmica tóxica (NET) vs. Stevens-Johnson: diferença?","Definidos pelo percentual de superfície corporal descolada (SJS <10%, NET >30%, sobreposição 10-30%).","Manifestações em graves"]
+]},
+
+endocrinologia:{label:"Endocrinologia", cards:[
+["Qual eixo fisiopatológico central conecta obesidade, resistência insulínica e risco CV?","Adiposidade visceral → inflamação crônica de baixo grau → resistência à insulina → dislipidemia aterogênica e HAS.","Obesidade/CV"],
+["Como se classifica a obesidade pelo IMC (OMS)?","Grau I: 30-34,9; Grau II: 35-39,9; Grau III (mórbida): ≥40 kg/m².","Classificação obesidade"],
+["Mecanismo de ação da tirzepatida?","Agonista duplo dos receptores de GIP e GLP-1, promovendo perda de peso e melhora glicêmica.","Tirzepatida"],
+["Critérios de síndrome metabólica pela IDF — quantos e quais componentes são necessários?","Obesidade central obrigatória + 2 de: TG elevados, HDL baixo, PA elevada, glicemia de jejum alterada.","Síndrome metabólica"],
+["Qual o critério glicêmico de jejum para diagnóstico de DM2 pela SBD?","Glicemia de jejum ≥126 mg/dL em duas ocasiões (ou HbA1c ≥6,5% ou glicemia 2h pós-TOTG ≥200).","DM2 SBD 2024"],
+["Qual classe é preferida em DM2 com obesidade e alto risco CV, segundo diretrizes atuais?","Agonistas de GLP-1 ou iSGLT2, com benefício adicional em perda de peso e proteção CV/renal.","DM2 SBD 2024"]
+]},
+
+gastroenterologia:{label:"Gastroenterologia", cards:[
+["Como diferenciar DRGE de dispepsia funcional clinicamente?","DRGE: pirose e regurgitação predominantes; dispepsia funcional: dor/desconforto epigástrico sem predomínio de sintomas de refluxo.","DRGE/Dispepsia"],
+["Quais são os critérios de alarme que indicam endoscopia em dispepsia?","Emagrecimento, disfagia, sangramento, anemia, massa palpável, idade >45-60 anos com sintomas novos.","DRGE/Dispepsia"],
+["1ª linha terapêutica da DRGE não complicada?","IBP + mudanças de estilo de vida.","DRGE/Dispepsia"],
+["Quais hepatites virais têm rastreio sorológico de rotina recomendado em adultos?","Hepatite B (HBsAg) e Hepatite C (anti-HCV), especialmente em grupos de risco/nascidos entre 1945-1965.","Hepatites"],
+["Marcador de fibrose/atividade inflamatória hepática amplamente usado na prática?","Relação AST/ALT e escores não invasivos (FIB-4, APRI); padrão-ouro é biópsia.","Marcadores hepáticos"],
+["Qual a complicação a rastrear periodicamente na cirrose hepática (rastreio de CHC)?","USG abdominal ± alfafetoproteína a cada 6 meses.","Cirrose"],
+["Diferença clínica entre retocolite ulcerativa e Doença de Crohn quanto à extensão?","RCU: acomete cólon de forma contínua, iniciando no reto; Crohn: pode acometer todo o TGI de forma salteada, com acometimento transmural.","DII"],
+["Critérios de Roma IV para Síndrome do Intestino Irritável — frequência mínima?","Dor abdominal recorrente ≥1 dia/semana nos últimos 3 meses, associada a alteração do hábito intestinal.","SII"],
+["Escore usado para estratificar risco em hemorragia digestiva alta antes da endoscopia?","Escore de Glasgow-Blatchford.","HDA"],
+["Causa mais comum de HDA em cirróticos?","Varizes esofágicas.","HDA"],
+["A partir de qual idade inicia-se o rastreamento populacional de câncer colorretal no Brasil (risco padrão)?","A partir dos 45-50 anos, conforme diretriz utilizada.","CA colorretal"],
+["Conduta após ressecção de pólipo adenomatoso avançado na colonoscopia?","Vigilância endoscópica em intervalo reduzido (geralmente 3 anos), conforme características do pólipo.","CA colorretal"]
+]},
+
+geriatria:{label:"Geriatria", cards:[
+["O que compõe a Avaliação Geriátrica Ampla (AGA)?","Avaliação funcional, cognitiva, humor, mobilidade/quedas, nutrição, polifarmácia e suporte social.","AGA"],
+["Cite 3 das clássicas 'síndromes geriátricas' (5 Is/gigantes da geriatria).","Instabilidade postural (quedas), incontinência, imobilidade, insuficiência cognitiva (demência), iatrogenia.","Síndromes geriátricas"],
+["O que são os critérios de Beers?","Lista de medicamentos potencialmente inapropriados para uso em idosos.","Polifarmácia"],
+["Defina polifarmácia.","Uso concomitante de 5 ou mais medicamentos.","Polifarmácia"],
+["Quais são as doenças crônicas mais prevalentes na população idosa?","HAS, DM2, osteoartrose, doença cardiovascular e demência.","Doenças crônicas"],
+["Diferença central entre cuidados paliativos e cuidados de fim de vida?","Paliativos podem ser aplicados desde o diagnóstico de doença grave, em paralelo ao tratamento; fim de vida refere-se aos últimos dias/semanas de vida.","Paliativos"],
+["Recomendação nutricional geral para prevenção de sarcopenia no idoso?","Ingestão proteica adequada (~1,0-1,2 g/kg/dia) associada a exercício resistido.","Nutrição"],
+["Quais vacinas são rotineiramente recomendadas para idosos no Brasil?","Influenza anual, pneumocócica (VPC13/VPP23), herpes-zóster, dTpa, COVID-19.","Vacinação"],
+["Ferramenta de rastreio cognitivo rápido amplamente usada na prática clínica?","Mini-Exame do Estado Mental (MEEM) ou Montreal Cognitive Assessment (MoCA).","Cognição/Demência"],
+["Principal causa de demência em idosos?","Doença de Alzheimer.","Cognição/Demência"]
+]},
+
+go:{label:"Ginecologia e Obstetrícia", cards:[
+["Qual o principal fator de risco para gravidez ectópica?","Doença Inflamatória Pélvica prévia (sequela tubária).","Prenhez ectópica"],
+["Qual a tríade clássica de apresentação da gravidez ectópica rota?","Dor abdominal, atraso menstrual e sangramento vaginal, podendo evoluir com choque hemorrágico.","Prenhez ectópica"],
+["Exame inicial diante de suspeita de gravidez ectópica?","Beta-hCG quantitativo seriado + ultrassonografia transvaginal.","Prenhez ectópica"],
+["Principais agentes etiológicos da Doença Inflamatória Pélvica?","Chlamydia trachomatis e Neisseria gonorrhoeae (frequentemente polimicrobiana).","DIP"],
+["Complicação tardia da DIP não tratada?","Infertilidade por fator tubário, dor pélvica crônica, gravidez ectópica.","DIP"],
+["Principais causas de sangramento uterino anormal segundo classificação PALM-COEIN?","Estruturais (pólipo, adenomiose, leiomioma, malignidade) e não estruturais (coagulopatia, disfunção ovulatória, iatrogenia, endométrio, não classificado).","SUA"],
+["Investigação inicial de sangramento uterino anormal em mulher >45 anos?","Ultrassonografia transvaginal ± biópsia endometrial para excluir malignidade.","SUA"]
+]},
+
+hematologia:{label:"Hematologia", cards:[
+["O que caracteriza a mielofibrose primária ao exame de sangue periférico?","Reação leucoeritroblástica com dacriócitos (hemácias em lágrima).","Mielofibrose"],
+["Qual mutação está mais associada às neoplasias mieloproliferativas, incluindo mielofibrose?","JAK2 V617F.","Mielofibrose"],
+["Fisiopatologia básica da anemia falciforme?","Mutação na cadeia beta da hemoglobina (HbS) que leva à polimerização em baixa tensão de O2, causando hemácias falciformes e vaso-oclusão.","Anemia falciforme"],
+["Principal complicação aguda da anemia falciforme com dor intensa?","Crise vaso-oclusiva.","Anemia falciforme"],
+["Qual o distúrbio hemorrágico hereditário mais comum?","Doença de von Willebrand.","Von Willebrand"],
+["Diferença fisiopatológica entre hemofilia A e B?","Hemofilia A: deficiência do fator VIII; Hemofilia B: deficiência do fator IX. Ambas ligadas ao X.","Hemofilia"],
+["Achado laboratorial clássico das hemofilias?","TTPa prolongado com TP normal.","Hemofilia"],
+["Célula neoplásica característica do Mieloma Múltiplo?","Plasmócito monoclonal na medula óssea.","Mieloma múltiplo"],
+["Tríade CRAB usada nos critérios diagnósticos do mieloma múltiplo?","Cálcio elevado, insuficiência Renal, Anemia, lesões ósseas líticas (Bone).","Mieloma múltiplo"],
+["Alteração citogenética característica da LMC?","Cromossomo Philadelphia t(9;22) — gene BCR-ABL.","LMC"],
+["Tratamento de escolha da LMC?","Inibidor de tirosina-quinase (ex: imatinibe).","LMC"],
+["Achado imunofenotípico característico da LLC?","Linfócitos B CD5+/CD23+ em sangue periférico, com linfocitose persistente.","LLC"]
+]},
+
+infectologia:{label:"Infectologia", cards:[
+["Princípio central do uso racional de antimicrobianos?","Usar o espectro mais estreito possível, pelo menor tempo eficaz, guiado por cultura sempre que possível.","Antimicrobianos"],
+["O que caracteriza uma infecção relacionada a dispositivo (ex: cateter venoso central)?","Sinais de infecção sistêmica com hemocultura positiva e ausência de outro foco, associada ao dispositivo.","Infecção por dispositivo"],
+["Medida mais eficaz isolada para controle de infecção hospitalar?","Higienização das mãos.","Controle infecção hospitalar"],
+["Diferença geral entre infecção bacteriana e viral quanto a marcadores inflamatórios?","Bacteriana: PCR/procalcitonina tendem a estar mais elevadas; viral: leucograma geralmente com linfocitose relativa e marcadores menos elevados (não absoluto).","Infecções bacterianas/virais"],
+["Principais grupos de risco para infecções fúngicas invasivas?","Imunossuprimidos (neutropenia prolongada, transplantados, uso de corticoide/imunobiológico).","Infecções fúngicas"],
+["Exemplo de infecção parasitária endêmica no Brasil com repercussão sistêmica?","Esquistossomose (Schistosoma mansoni), com possível hipertensão porta.","Infecções parasitárias"],
+["Vacinas obrigatórias/recomendadas rotineiramente para profissionais de saúde?","Hepatite B, influenza anual, dT/dTpa, tríplice viral, varicela, COVID-19.","Vacinas"],
+["Cuidados especiais de imunização em pacientes imunossuprimidos?","Evitar vacinas de vírus vivo atenuado (ex: tríplice viral, febre amarela) conforme grau de imunossupressão.","Populações especiais"],
+["O que define sepse pelos critérios atuais (Sepsis-3)?","Disfunção orgânica ameaçadora à vida causada por resposta desregulada do hospedeiro à infecção, com aumento ≥2 pontos no SOFA.","Sepse"]
+]},
+
+nefrologia:{label:"Nefrologia", cards:[
+["Como se define e classifica a Doença Renal Crônica (estágios pela TFG)?","Presença de dano renal ou TFG <60 mL/min/1,73m² por ≥3 meses; estágios G1-G5 pela TFG e A1-A3 pela albuminúria.","DRC"],
+["Principal causa de DRC no Brasil e no mundo?","Nefropatia diabética, seguida de nefroesclerose hipertensiva.","DRC"],
+["Diferença entre síndrome nefrótica e nefrítica?","Nefrótica: proteinúria maciça (>3,5g/dia), edema, hipoalbuminemia, hiperlipidemia. Nefrítica: hematúria, HAS, edema leve, redução da TFG.","Glomerulopatia"],
+["Achado histopatológico clássico da nefropatia diabética?","Glomeruloesclerose nodular (lesão de Kimmelstiel-Wilson).","Nefropatia DM"],
+["Classe farmacológica com efeito nefroprotetor comprovado na nefropatia diabética?","iSGLT2 e IECA/BRA (bloqueio do SRAA).","Nefropatia DM"],
+["Como diferenciar acidose metabólica de ânion gap elevado vs normal?","Ânion gap elevado: acúmulo de ácido não mensurado (ex: cetoacidose, acidose lática); normal: perda de bicarbonato (ex: diarreia, ATR).","Distúrbio ácido-base"],
+["Fórmula do ânion gap?","AG = Na⁺ − (Cl⁻ + HCO3⁻); valor normal ~8-12 mEq/L.","Distúrbio ácido-base"],
+["Classes preferenciais de anti-hipertensivos em nefropata diabético com albuminúria?","IECA ou BRA (bloqueio do SRAA), associados a iSGLT2.","Hipertensão renal"]
+]},
+
+neurologia:{label:"Neurologia", cards:[
+["Definição de epilepsia segundo a ILAE (critério prático)?","Duas crises não provocadas com intervalo >24h, ou uma crise com alto risco de recorrência (>60%).","Epilepsia"],
+["Diferença fisiopatológica entre crise focal e generalizada?","Focal: origem em rede neuronal limitada a um hemisfério; generalizada: envolve redes bilaterais desde o início.","Epilepsia"],
+["Distúrbio do sono mais associado a demências, especialmente demência com corpos de Lewy?","Transtorno comportamental do sono REM (RBD).","Sono em demências"],
+["Contraindicação clássica para realização de punção lombar?","Hipertensão intracraniana com risco de herniação (avaliar TC prévia se sinais focais/rebaixamento de consciência).","Punção lombar"],
+["Janela terapêutica para trombólise IV no AVC isquêmico?","Até 4,5 horas do início dos sintomas (critérios específicos).","AVC"],
+["Principal diagnóstico diferencial de AVC a excluir rapidamente antes de trombólise?","Hipoglicemia e AVC hemorrágico (via TC de crânio sem contraste).","AVC"],
+["Diferença central entre Alzheimer e demência vascular quanto à evolução?","Alzheimer: declínio insidioso e progressivo; vascular: início mais abrupto, com piora em degraus, associada a eventos isquêmicos.","Síndromes demenciais"],
+["Sinais de alarme (red flags) em cefaleia que indicam investigação urgente?","Pior cefaleia da vida, início súbito (thunderclap), febre, déficit focal, papiledema, início após os 50 anos.","Cefaleias"],
+["Escala usada para avaliar nível de consciência no coma?","Escala de Coma de Glasgow.","Coma"]
+]},
+
+oftalmologia:{label:"Oftalmologia", cards:[
+["Apresentação clínica clássica do glaucoma agudo de ângulo fechado?","Dor ocular intensa, olho vermelho, visão turva, halos ao redor de luzes, náusea/vômito, pupila em midríase média fixa.","Glaucoma agudo"],
+["Como diferenciar celulite pré-septal de orbitária?","Orbitária: dor à movimentação ocular, proptose, oftalmoplegia, quemose — emergência com risco de perda visual/disseminação intracraniana. Pré-septal: sem esses sinais.","Celulite orbitária"],
+["Conduta inicial diante de corpo estranho ocular com suspeita de perfuração?","Não remover, proteger o olho com escudo rígido (não compressivo) e encaminhar à oftalmologia com urgência.","Corpo estranho"],
+["Causa de perda visual súbita indolor mais associada a êmbolo (amaurose fugaz/oclusão de artéria central da retina)?","Oclusão da artéria central da retina — emergência, considerar causa embólica/carotídea.","Perda visual súbita"],
+["Achado fundoscópico característico da retinopatia diabética proliferativa?","Neovascularização do disco óptico ou retina.","Retinopatia diabética"],
+["Achado retiniano clássico da retinopatia hipertensiva grave?","Papiledema, hemorragias em chama de vela, exsudatos algodonosos (retinopatia hipertensiva maligna).","HAS retiniana"],
+["Alteração ocular clássica na toxoplasmose ocular?","Coriorretinite focal necrosante, geralmente adjacente a cicatriz antiga.","Infecções oculares"],
+["Manifestação ocular do LES a investigar?","Retinopatia lúpica (exsudatos algodonosos) e ceratoconjuntivite seca associada.","Autoimune ocular"]
+]},
+
+oncologia:{label:"Oncologia", cards:[
+["Cite 3 dos 'hallmarks' clássicos do câncer.","Sinalização proliferativa sustentada, evasão de supressores de crescimento, resistência à morte celular (apoptose), entre outros (invasão/metástase, angiogênese, imortalização replicativa).","Hallmarks"],
+["Recomendação geral de rastreamento mamográfico no Brasil (risco padrão)?","Mamografia bienal dos 50 aos 69 anos, segundo diretrizes do Ministério da Saúde (sociedades especializadas recomendam anual a partir dos 40).","Rastreamento mama"],
+["Principais fatores de risco para câncer de mama?","Idade, história familiar/mutação BRCA1/2, menarca precoce, menopausa tardia, nuliparidade, terapia hormonal prolongada.","Risco mama"],
+["Diferença entre carcinógenos genotóxicos e não genotóxicos (epigenéticos)?","Genotóxicos causam dano direto ao DNA (ex: radiação, benzeno); não genotóxicos promovem carcinogênese por outros mecanismos (ex: inflamação crônica, hormônios).","Carcinógenos"],
+["Rastreamento de câncer de próstata: qual exame e a partir de que idade discutir?","PSA ± toque retal, com decisão compartilhada a partir dos 50 anos (45 se alto risco).","Rastreamento próstata"],
+["Exemplo de terapia personalizada/imunoterapia no câncer?","Inibidores de checkpoint imunológico (ex: anti-PD-1/PD-L1) e terapias-alvo guiadas por perfil molecular do tumor.","Terapias inovadoras"]
+]},
+
+otorrino:{label:"Otorrinolaringologia", cards:[
+["Agente etiológico mais comum de otite média aguda bacteriana?","Streptococcus pneumoniae.","OMA"],
+["Diferença entre sinusite aguda viral e bacteriana quanto ao tempo de evolução?","Bacteriana: sintomas persistentes >10 dias sem melhora, ou piora após melhora inicial ('double worsening'), ou quadro grave desde o início.","Sinusite"],
+["Complicação temida da amigdalite bacteriana não tratada?","Abscesso peritonsilar.","Amigdalite"],
+["Conduta inicial na epistaxe anterior não controlada com compressão digital?","Cauterização química (nitrato de prata) ou tamponamento anterior.","Epistaxe"],
+["Corpo estranho em qual localização (ouvido/nariz) tem maior risco de complicação por baterias de botão?","Nariz e ouvido — baterias exigem remoção de urgência pelo risco de necrose por liquefação.","Corpo estranho"],
+["1ª linha terapêutica da rinite alérgica persistente moderada-grave?","Corticoide intranasal.","Rinossinusite alérgica"],
+["Exame padrão-ouro para diagnóstico de apneia obstrutiva do sono?","Polissonografia.","AOS"],
+["Manobra terapêutica de escolha na VPPB (vertigem posicional paroxística benigna)?","Manobra de Epley (reposicionamento de otólitos).","Vertigem"],
+["Causas mais comuns de disfonia aguda?","Laringite viral aguda e uso vocal abusivo.","Disfonia"],
+["Diferença entre perda auditiva condutiva e neurossensorial pelo teste de Weber/Rinne?","Condutiva: Weber lateraliza para o ouvido afetado, Rinne negativo (via óssea > aérea). Neurossensorial: Weber lateraliza para o ouvido sadio, Rinne positivo.","Perda auditiva"]
+]},
+
+pneumologia:{label:"Pneumologia", cards:[
+["Padrão espirométrico característico da asma?","Distúrbio ventilatório obstrutivo com reversibilidade significativa após broncodilatador (VEF1 aumenta ≥12% e 200mL).","Asma"],
+["Padrão espirométrico da DPOC?","Distúrbio ventilatório obstrutivo com reversibilidade parcial/ausente (relação VEF1/CVF <0,70 pós-broncodilatador).","DPOC"],
+["Achado tomográfico clássico da fibrose pulmonar idiopática?","Padrão de pneumonia intersticial usual (UIP) — faveolamento subpleural basal, reticulado, bronquiectasias de tração.","Fibrose pulmonar"],
+["Escore clínico usado para probabilidade pré-teste de TEP?","Escore de Wells.","TEP"],
+["Exame de escolha para diagnóstico de TEP em paciente estável com função renal normal?","Angio-TC de tórax (angio-TC de artérias pulmonares).","TEP"],
+["Definição hemodinâmica de hipertensão pulmonar?","Pressão média de artéria pulmonar >20 mmHg ao cateterismo cardíaco direito (critério atualizado).","HP"],
+["Recomendação de rastreamento de câncer de pulmão em tabagistas de alto risco?","TC de tórax de baixa dose anual em tabagistas com carga tabágica significativa (ex: ≥20 maços-ano, 50-80 anos).","CA pulmão"]
+]},
+
+psiquiatria:{label:"Psiquiatria", cards:[
+["Sintomas positivos vs negativos na esquizofrenia — exemplos?","Positivos: alucinações, delírios. Negativos: embotamento afetivo, avolição, isolamento social.","Esquizofrenia"],
+["Duração mínima de sintomas para diagnóstico de esquizofrenia (DSM-5)?","≥6 meses, com ≥1 mês de sintomas ativos (fase psicótica).","Esquizofrenia"],
+["Diferença central entre episódio depressivo maior e transtorno bipolar?","Bipolar inclui episódios de mania/hipomania intercalados, além de episódios depressivos.","Transtorno de humor"],
+["Sintomas nucleares de mania?","Humor elevado/irritável, grandiosidade, redução da necessidade de sono, fuga de ideias, impulsividade.","Transtorno de humor"],
+["Transtorno de ansiedade caracterizado por preocupação excessiva e persistente (≥6 meses) sobre múltiplos domínios?","Transtorno de Ansiedade Generalizada (TAG).","Ansiedade"],
+["Sinais clínicos clássicos de abstinência alcoólica moderada-grave?","Tremor, sudorese, taquicardia, agitação, alucinações, podendo evoluir para crise convulsiva e delirium tremens.","Abstinência alcoólica"],
+["Tratamento farmacológico de escolha para abstinência alcoólica?","Benzodiazepínicos (ex: diazepam ou lorazepam), em esquema fixo ou guiado por escala (CIWA-Ar).","Abstinência alcoólica"]
+]},
+
+reumatologia:{label:"Reumatologia", cards:[
+["Padrão articular característico da Artrite Reumatoide?","Poliartrite simétrica de pequenas articulações (mãos/punhos), com rigidez matinal >1 hora.","Artrite Reumatoide"],
+["Autoanticorpos mais específicos para AR?","Fator antipeptídeo citrulinado cíclico (anti-CCP) — mais específico que fator reumatoide.","Artrite Reumatoide"],
+["Critério imunológico mais específico para LES?","Anti-Sm e anti-dsDNA.","LES"],
+["Manifestação cutânea clássica do LES?","Rash malar (asa de borboleta), fotossensibilidade.","LES"],
+["Características diagnósticas centrais da fibromialgia?","Dor musculoesquelética difusa crônica (>3 meses) com pontos dolorosos, associada a fadiga e distúrbio do sono, sem alterações inflamatórias laboratoriais.","Fibromialgia"],
+["Tríade clássica da artrite reativa (Síndrome de Reiter)?","Uretrite, conjuntivite e artrite, geralmente pós-infecciosa (ex: Chlamydia, enterobactérias).","Artrite reativa"],
+["Fisiopatologia da gota?","Depósito de cristais de urato monossódico nas articulações por hiperuricemia.","Gota"],
+["Achado laboratorial/microscópico que confirma gota?","Cristais de urato com birrefringência negativa no líquido sinovial.","Gota"]
+]},
+
+sus:{label:"SUS / Clínica Médica", cards:[
+["Quais são os princípios doutrinários do SUS?","Universalidade, equidade e integralidade.","Política Nacional"],
+["Quais são os princípios organizativos do SUS?","Descentralização, regionalização/hierarquização e participação social/controle social.","Política Nacional"],
+["O que é a Atenção Primária à Saúde (APS) na Estratégia Saúde da Família?","Porta de entrada preferencial do sistema, com atuação de equipe multiprofissional em território adscrito, com foco em promoção, prevenção e coordenação do cuidado.","Saúde da Família/APS"],
+["O que caracteriza uma doença de notificação compulsória?","Agravo/doença de relevância epidemiológica que exige comunicação obrigatória às autoridades de vigilância em saúde.","Epidemiologia/Vigilância"],
+["Como é organizada a Rede de Atenção às Urgências (RUE) no SUS?","Articula UBS, SAMU, UPA, portas de urgência hospitalares e atenção domiciliar/reabilitação de forma integrada.","Urgência/Emergência"],
+["O que são os Protocolos Clínicos e Diretrizes Terapêuticas (PCDT)?","Documentos do Ministério da Saúde que padronizam diagnóstico, tratamento e acompanhamento de doenças no SUS.","Medicamentos/Protocolos"],
+["Quais são os principais eixos da Política Nacional de Promoção da Saúde?","Alimentação saudável, prática corporal/atividade física, enfrentamento do tabagismo e uso de álcool/drogas, entre outros determinantes sociais.","Promoção da saúde"],
+["Quais os princípios éticos fundamentais na relação médico-paciente segundo o Código de Ética Médica?","Autonomia, beneficência, não maleficência e justiça.","Ética e legal"],
+["Como se organiza a saúde mental na Atenção Primária?","Por meio do matriciamento com equipes de saúde mental (NASF/eSM) apoiando as equipes de APS no manejo compartilhado.","Saúde Mental APS"],
+["Exemplos de Doenças Crônicas Não Transmissíveis (DCNT) prioritárias no Brasil?","Doenças cardiovasculares, diabetes, câncer e doenças respiratórias crônicas.","DCNT"]
+]},
+
+emergencias:{label:"Emergências", cards:[
+["Causas mais comuns de insuficiência respiratória aguda tipo I (hipoxêmica)?","Edema pulmonar cardiogênico, SDRA, pneumonia, TEP.","IRpA"],
+["Diferença entre insuficiência respiratória tipo I e tipo II?","Tipo I: hipoxemia com PaCO2 normal/baixo; Tipo II: hipoxemia associada a hipercapnia (falência ventilatória).","IRpA"],
+["Definição de choque séptico segundo Sepsis-3?","Sepse com necessidade de vasopressor para manter PAM ≥65 mmHg e lactato >2 mmol/L, mesmo após reposição volêmica adequada.","Sepse"],
+["Meta de tempo para início de antibioticoterapia na sepse/choque séptico?","O mais rápido possível, idealmente na primeira hora do reconhecimento.","Sepse"],
+["Sequência de avaliação primária no paciente instável (ABCDE)?","A (via aérea), B (respiração), C (circulação), D (disfunção neurológica), E (exposição).","Paciente instável"],
+["Prioridade na abordagem inicial do paciente politraumatizado grave?","Controle de via aérea com proteção cervical, seguido de avaliação de ventilação e controle de hemorragias (ABCDE do trauma).","Politraumatizado"],
+["Principal emergência nefrológica que exige diálise de urgência?","Hipercalemia grave refratária, acidose metabólica grave, sobrecarga volêmica refratária ou uremia sintomática grave.","Emergência nefro"],
+["Conduta imediata no status epilepticus (emergência neurológica)?","Benzodiazepínico IV (ex: diazepam/lorazepam) como 1ª linha, seguido de fenitoína/valproato se refratário.","Emergência neuro"],
+["Conduta imediata na dissecção aguda de aorta tipo A?","Controle rigoroso de PA/FC (betabloqueador IV) e avaliação cirúrgica de urgência.","Emergência cardio"]
+]}
+};
+
+/* ======================= ESTADO ======================= */
+let currentSpec = "cardiologia";
+let currentTopic = "Todos";
+let order = [];
+let idx = 0;
+let flipped = false;
+let known = new Set();
+let review = new Set();
+
+function cardId(spec,i){return spec+"_"+i;}
+
+function buildOrder(spec, topic){
+  const cards = DATA[spec].cards;
+  let list = cards.map((c,i)=>i);
+  if(topic !== "Todos"){
+    list = list.filter(i => cards[i][2] === topic);
+  }
+  return list;
+}
+
+function shuffleArr(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+/* ======================= RENDER ======================= */
+const specList = document.getElementById('specList');
+function renderSpecList(){
+  specList.innerHTML = "";
+  Object.keys(DATA).forEach(key=>{
+    const li = document.createElement('li');
+    li.className = 'spec-item' + (key===currentSpec ? ' active' : '');
+    li.innerHTML = `<span>${DATA[key].label}</span><span class="spec-count">${DATA[key].cards.length}</span>`;
+    li.onclick = ()=>{ selectSpec(key); };
+    specList.appendChild(li);
+  });
+}
+
+function renderTopics(){
+  const cards = DATA[currentSpec].cards;
+  const topics = ["Todos", ...new Set(cards.map(c=>c[2]))];
+  const el = document.getElementById('topicFilter');
+  el.innerHTML = "";
+  topics.forEach(t=>{
+    const chip = document.createElement('div');
+    chip.className = 'topic-chip' + (t===currentTopic ? ' active' : '');
+    chip.textContent = t;
+    chip.onclick = ()=>{ currentTopic = t; order = buildOrder(currentSpec, currentTopic); idx=0; flipped=false; renderTopics(); renderCard(); };
+    el.appendChild(chip);
+  });
+}
+
+function renderHeader(){
+  document.getElementById('specTitle').textContent = DATA[currentSpec].label;
+  document.getElementById('specSub').textContent = `${DATA[currentSpec].cards.length} flashcards cadastrados neste módulo — baseado na matriz do Edital nº 2473.`;
+}
+
+function updateStats(){
+  document.getElementById('cardTotal').textContent = order.length;
+  document.getElementById('cardPos').textContent = order.length ? (idx+1) : 0;
+  let k=0, r=0;
+  order.forEach(i=>{
+    const id = cardId(currentSpec,i);
+    if(known.has(id)) k++;
+    if(review.has(id)) r++;
+  });
+  document.getElementById('knownCount').textContent = k;
+  document.getElementById('reviewCount').textContent = r;
+}
+
+function renderCard(){
+  const studyArea = document.getElementById('studyArea');
+  const emptyState = document.getElementById('emptyState');
+  if(order.length===0){
+    studyArea.style.display='none';
+    emptyState.style.display='block';
+    updateStats();
+    return;
+  }
+  studyArea.style.display='block';
+  emptyState.style.display='none';
+
+  const cards = DATA[currentSpec].cards;
+  const i = order[idx];
+  const [q,a,topic] = cards[i];
+  document.getElementById('frontText').textContent = q;
+  document.getElementById('backText').textContent = a;
+  document.getElementById('topicTagFront').textContent = topic;
+  document.getElementById('topicTagBack').textContent = topic;
+  const cardEl = document.getElementById('card');
+  cardEl.classList.toggle('flipped', flipped);
+  updateStats();
+}
+
+function selectSpec(key){
+  currentSpec = key;
+  currentTopic = "Todos";
+  order = buildOrder(currentSpec, currentTopic);
+  idx = 0;
+  flipped = false;
+  renderSpecList();
+  renderHeader();
+  renderTopics();
+  renderCard();
+}
+
+/* ======================= EVENTOS ======================= */
+document.getElementById('card').addEventListener('click', ()=>{
+  flipped = !flipped;
+  document.getElementById('card').classList.toggle('flipped', flipped);
+});
+
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  if(order.length===0) return;
+  idx = (idx+1) % order.length;
+  flipped = false;
+  renderCard();
+});
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(order.length===0) return;
+  idx = (idx-1+order.length) % order.length;
+  flipped = false;
+  renderCard();
+});
+document.getElementById('shuffleBtn').addEventListener('click', ()=>{
+  order = shuffleArr(order);
+  idx = 0;
+  flipped = false;
+  renderCard();
+});
+document.getElementById('knownBtn').addEventListener('click', ()=>{
+  const i = order[idx];
+  const id = cardId(currentSpec,i);
+  known.add(id); review.delete(id);
+  updateStats();
+});
+document.getElementById('reviewBtn').addEventListener('click', ()=>{
+  const i = order[idx];
+  const id = cardId(currentSpec,i);
+  review.add(id); known.delete(id);
+  updateStats();
+});
+
+/* ======================= INIT ======================= */
+selectSpec("cardiologia");
+</script>
+</body>
+</html>
